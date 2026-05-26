@@ -2,7 +2,7 @@ import RIBs
 import UIKit
 
 protocol RootPresentableListener: AnyObject {
-    // TODO: ViewController -> Interactor 비즈니스 로직 호출 메서드 선언
+    func viewDidLoad()
 }
 
 final class RootViewController: UINavigationController, RootPresentable, RootViewControllable {
@@ -12,5 +12,13 @@ final class RootViewController: UINavigationController, RootPresentable, RootVie
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationBar.prefersLargeTitles = true
+        listener?.viewDidLoad()
+    }
+}
+
+// MARK: - RootViewControllable
+extension RootViewController {
+    func setRootViewController(_ viewControllable: ViewControllable) {
+        setViewControllers([viewControllable.uiviewController], animated: false)
     }
 }

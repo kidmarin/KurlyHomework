@@ -2,33 +2,33 @@ import RIBs
 import RxSwift
 
 protocol RootRouting: ViewableRouting {
-    // TODO: Interactor -> Router 호출 메서드 선언
+    func routeToSearch()
 }
 
 protocol RootPresentable: Presentable {
     var listener: RootPresentableListener? { get set }
-    // TODO: Interactor -> ViewController 데이터 전달 메서드 선언
 }
 
 protocol RootListener: AnyObject {
-    // TODO: 부모 RIB과의 통신 메서드 선언
 }
 
-final class RootInteractor: PresentableInteractor<RootPresentable>, RootInteractable, RootPresentableListener {
+final class RootInteractor: PresentableInteractor<RootPresentable>, RootInteractable {
 
     weak var router: RootRouting?
     weak var listener: RootListener?
 
-    override init(presenter: RootPresentable) {
+    override nonisolated init(presenter: RootPresentable) {
         super.init(presenter: presenter)
-        presenter.listener = self
     }
+}
 
-    override func didBecomeActive() {
-        super.didBecomeActive()
+// MARK: - RootPresentableListener
+extension RootInteractor: RootPresentableListener {
+    func viewDidLoad() {
+        router?.routeToSearch()
     }
+}
 
-    override func willResignActive() {
-        super.willResignActive()
-    }
+// MARK: - SearchListener
+extension RootInteractor: SearchListener {
 }

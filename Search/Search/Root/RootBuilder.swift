@@ -1,9 +1,14 @@
+import UIKit
 import RIBs
 
 protocol RootDependency: Dependency {
 }
 
-final class RootComponent: Component<RootDependency> {
+final class RootComponent: Component<RootDependency>, SearchDependency {
+
+    override nonisolated init(dependency: any RootDependency) {
+        super.init(dependency: dependency)
+    }
 }
 
 // MARK: - Builder
@@ -14,7 +19,7 @@ protocol RootBuildable: Buildable {
 
 final class RootBuilder: Builder<RootDependency>, RootBuildable {
 
-    override init(dependency: RootDependency) {
+    override nonisolated init(dependency: RootDependency) {
         super.init(dependency: dependency)
     }
 
@@ -23,6 +28,15 @@ final class RootBuilder: Builder<RootDependency>, RootBuildable {
         let viewController = RootViewController()
         let interactor = RootInteractor(presenter: viewController)
         interactor.listener = listener
-        return RootRouter(interactor: interactor, viewController: viewController)
+        viewController.listener = interactor
+        let searchBuilder = SearchBuilder(dependency: component)
+        let router = RootRouter(
+            interactor: interactor,
+            viewController: viewController,
+            searchBuilder: searchBuilder
+        )
+        interactor.router = router
+
+        return router
     }
 }

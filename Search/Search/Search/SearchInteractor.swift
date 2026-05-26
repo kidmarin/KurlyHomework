@@ -40,7 +40,7 @@ extension SearchInteractor {
 
     nonisolated enum SearchItem: Hashable {
         case recentKeyword(RecentKeyword)
-        case filteredRecentKeyword(String)
+        case filteredRecentKeyword(RecentKeyword)
         case searchResult(SearchResultItem)
     }
 }
@@ -59,13 +59,18 @@ extension SearchInteractor {
             presenter.applySnapshot(snapshot)
         }
     }
-}
 
-// MARK: - SearchResultListener
-extension SearchInteractor: SearchResultListener {
-
-    func didSearch() {
-        fetchRecentKeywords()
+    private func applyFilteredKeywordsSnapshot(text: String) {
+        Task {
+            let keywords = await repository.fetch()
+            let filtered = keywords.filter { $0.keyword.localizedCaseInsensitiveContains(text) }
+            var snapshot = NSDiffableDataSourceSnapshot<SearchSection, SearchItem>()
+            if !filtered.isEmpty {
+                snapshot.appendSections([.filteredRecentKeyword])
+                snapshot.appendItems(filtered.map { .filteredRecentKeyword($0) }, toSection: .filteredRecentKeyword)
+            }
+            presenter.applySnapshot(snapshot)
+        }
     }
 }
 
@@ -87,6 +92,14 @@ extension SearchInteractor: SearchPresentableListener {
         Task {
             await repository.deleteAll()
             fetchRecentKeywords()
+        }
+    }
+
+    func filterRecentKeywords(with text: String) {
+        if text.isEmpty {
+            fetchRecentKeywords()
+        } else {
+            applyFilteredKeywordsSnapshot(text: text)
         }
     }
 }

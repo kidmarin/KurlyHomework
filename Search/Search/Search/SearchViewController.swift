@@ -8,6 +8,7 @@ protocol SearchPresentableListener: AnyObject {
     func viewDidLoad()
     func deleteRecentKeyword(_ keyword: String)
     func deleteAllRecentKeywords()
+    func filterRecentKeywords(with text: String)
 }
 
 protocol SearchResultPresentableListener: AnyObject {
@@ -46,6 +47,7 @@ final class SearchViewController: UIViewController, SearchPresentable, SearchRes
         tableView.keyboardDismissMode = .onDrag
         tableView.sectionHeaderTopPadding = 0
         tableView.register(RecentKeywordCell.self, forCellReuseIdentifier: RecentKeywordCell.Const.identifier)
+        tableView.register(FilteredRecentKeywordCell.self, forCellReuseIdentifier: FilteredRecentKeywordCell.Const.identifier)
         tableView.register(SearchResultCell.self, forCellReuseIdentifier: SearchResultCell.Const.identifier)
         tableView.register(RecentKeywordHeaderView.self, forHeaderFooterViewReuseIdentifier: RecentKeywordHeaderView.Const.identifier)
         tableView.register(RecentKeywordFooterView.self, forHeaderFooterViewReuseIdentifier: RecentKeywordFooterView.Const.identifier)
@@ -155,6 +157,10 @@ extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch dataSource.itemIdentifier(for: indexPath) {
         case .recentKeyword(let keyword):
+            searchTextField.text = keyword.keyword
+            searchResultListener?.search(with: keyword.keyword)
+        case .filteredRecentKeyword(let keyword):
+            searchTextField.text = keyword.keyword
             searchResultListener?.search(with: keyword.keyword)
         case .searchResult(let item):
             searchResultListener?.didSelectItem(item)
@@ -181,6 +187,7 @@ extension SearchViewController {
         navigationItem.largeTitleDisplayMode = .always
         searchTextField.delegate = self
         searchTextField.returnKeyType = .search
+        searchTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         resultTableView.delegate = self
         view.addSubview(searchTextField)
         view.addSubview(resultTableView)
@@ -209,6 +216,10 @@ extension SearchViewController {
         }
     }
 
+    @objc private func textFieldDidChange(_ textField: UITextField) {
+        searchListener?.filterRecentKeywords(with: textField.text ?? "")
+    }
+
     private func makeDataSource() -> UITableViewDiffableDataSource<SearchInteractor.SearchSection, SearchInteractor.SearchItem> {
         UITableViewDiffableDataSource(tableView: resultTableView) { tableView, indexPath, item in
             switch item {
@@ -217,8 +228,10 @@ extension SearchViewController {
                 cell?.configure(with: keyword)
                 cell?.delegate = self
                 return cell ?? UITableViewCell()
-            case .filteredRecentKeyword:
-                return UITableViewCell()
+            case .filteredRecentKeyword(let keyword):
+                let cell = tableView.dequeueReusableCell(withIdentifier: FilteredRecentKeywordCell.Const.identifier, for: indexPath) as? FilteredRecentKeywordCell
+                cell?.configure(with: keyword)
+                return cell ?? UITableViewCell()
             case .searchResult(let item):
                 let cell = tableView.dequeueReusableCell(withIdentifier: SearchResultCell.Const.identifier, for: indexPath) as? SearchResultCell
                 cell?.configure(with: item)

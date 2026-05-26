@@ -15,10 +15,7 @@ protocol SearchResultPresentable: Presentable {
     func hideLoading()
 }
 
-protocol SearchResultListener: AnyObject {
-
-    func didSearch()
-}
+protocol SearchResultListener: AnyObject { }
 
 final nonisolated class SearchResultInteractor: PresentableInteractor<SearchResultPresentable>, SearchResultInteractable {
 
@@ -50,7 +47,6 @@ extension SearchResultInteractor: SearchResultPresentableListener {
     func search(with keyword: String) {
         Task {
             await recentKeywordRepository.save(keyword)
-            listener?.didSearch()
             presenter.showLoading()
             do {
                 let response = try await searchResultRepository.search(keyword: keyword)

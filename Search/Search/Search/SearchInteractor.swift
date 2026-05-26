@@ -12,8 +12,7 @@ protocol SearchPresentable: Presentable {
     func applySnapshot(_ snapshot: NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>)
 }
 
-protocol SearchListener: AnyObject {
-}
+protocol SearchListener: AnyObject { }
 
 final nonisolated class SearchInteractor: PresentableInteractor<SearchPresentable>, SearchInteractable {
 

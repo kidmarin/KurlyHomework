@@ -8,7 +8,10 @@ protocol RootPresentableListener: AnyObject {
 final class RootViewController: UINavigationController, RootPresentable, RootViewControllable {
 
     weak var listener: RootPresentableListener?
+}
 
+// MARK: - Lifecycle
+extension RootViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationBar.prefersLargeTitles = true

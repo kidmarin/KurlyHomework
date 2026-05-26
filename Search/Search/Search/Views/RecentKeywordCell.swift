@@ -10,7 +10,6 @@ final class RecentKeywordCell: UITableViewCell {
     weak var delegate: RecentKeywordCellDelegate?
 
     // MARK: - UI
-
     private let keywordLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15)
@@ -49,7 +48,7 @@ extension RecentKeywordCell {
         selectionStyle = .none
         contentView.addSubview(keywordLabel)
         contentView.addSubview(deleteButton)
-        let action = UIAction(handler: { [weak self] _ in 
+        let action = UIAction(handler: { [weak self] _ in
             guard let self else { return }
             self.delegate?.deleteKeywordTapped(on: self)
         })
@@ -74,6 +73,7 @@ extension RecentKeywordCell {
 // MARK: - Const
 extension RecentKeywordCell {
     enum Const {
+
         static let identifier = "RecentKeywordCell"
     }
 }

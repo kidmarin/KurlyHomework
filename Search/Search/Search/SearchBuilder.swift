@@ -1,8 +1,7 @@
 import UIKit
 import RIBs
 
-protocol SearchDependency: Dependency {
-}
+protocol SearchDependency: Dependency { }
 
 final nonisolated class SearchComponent: Component<SearchDependency>, SearchResultDependency {
 
@@ -27,7 +26,6 @@ final nonisolated class SearchComponent: Component<SearchDependency>, SearchResu
 }
 
 // MARK: - Builder
-
 protocol SearchBuildable: Buildable {
     func build(withListener listener: SearchListener) -> SearchRouting
 }

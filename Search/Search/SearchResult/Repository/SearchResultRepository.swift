@@ -23,9 +23,10 @@ actor SearchResultRepository: SearchResultRepositoryProtocol {
     }
 }
 
-// MARK: - Constants
+// MARK: - Const
 extension SearchResultRepository {
     enum Const {
+
         static let searchURL = "https://api.github.com/search/repositories"
     }
 }

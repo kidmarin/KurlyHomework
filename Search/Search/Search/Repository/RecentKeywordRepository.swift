@@ -1,6 +1,7 @@
 import Foundation
 
 protocol RecentKeywordRepositoryProtocol {
+
     func fetch() async -> [RecentKeyword]
     func save(_ keyword: String) async
     func delete(_ keyword: String) async
@@ -46,6 +47,7 @@ extension RecentKeywordRepository {
 // MARK: - Const
 extension RecentKeywordRepository {
     enum Const {
+
         static let key = "recent_keywords"
         static let limit = 10
     }

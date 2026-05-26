@@ -20,7 +20,6 @@ final class SearchViewController: UIViewController, SearchPresentable, SearchRes
     weak var searchResultListener: SearchResultPresentableListener?
 
     // MARK: - UI
-
     private let searchTextField: UITextField = {
         let textField = UITextField()
         let iconContainer = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 20))
@@ -52,9 +51,10 @@ final class SearchViewController: UIViewController, SearchPresentable, SearchRes
     }()
 
     private lazy var dataSource: UITableViewDiffableDataSource<SearchInteractor.SearchSection, SearchInteractor.SearchItem> = makeDataSource()
+}
 
-    // MARK: - Lifecycle
-
+// MARK: - Lifecycle
+extension SearchViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()

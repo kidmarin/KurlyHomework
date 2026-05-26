@@ -26,7 +26,6 @@ final class SearchResultComponent: Component<SearchResultDependency> {
 }
 
 // MARK: - Builder
-
 protocol SearchResultBuildable: Buildable {
     func build(withListener listener: SearchResultListener) -> SearchResultRouting
 }

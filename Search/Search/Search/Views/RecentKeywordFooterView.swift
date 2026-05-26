@@ -10,7 +10,6 @@ final class RecentKeywordFooterView: UITableViewHeaderFooterView {
     weak var delegate: RecentKeywordFooterViewDelegate?
 
     // MARK: - UI
-
     private let deleteAllButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("전체삭제", for: .normal)
@@ -52,6 +51,7 @@ extension RecentKeywordFooterView {
 // MARK: - Const
 extension RecentKeywordFooterView {
     enum Const {
+
         static let identifier = "RecentKeywordFooterView"
     }
 }

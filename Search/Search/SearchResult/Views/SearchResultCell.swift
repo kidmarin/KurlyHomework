@@ -4,7 +4,6 @@ import UIKit
 final class SearchResultCell: UITableViewCell {
 
     // MARK: - UI
-
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -56,7 +55,7 @@ final class SearchResultCell: UITableViewCell {
     func configure(with item: SearchResultItem) {
         titleLabel.text = item.name
         descriptionLabel.text = item.owner.login
-        loadImage(from: item.owner.avatarUrl)
+        loadImage(from: item.owner.avatarURL)
     }
 }
 
@@ -97,6 +96,7 @@ extension SearchResultCell {
 // MARK: - Const
 extension SearchResultCell {
     enum Const {
+
         static let identifier = "SearchResultCell"
     }
 }

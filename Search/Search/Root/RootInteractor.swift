@@ -9,8 +9,7 @@ protocol RootPresentable: Presentable {
     var listener: RootPresentableListener? { get set }
 }
 
-protocol RootListener: AnyObject {
-}
+protocol RootListener: AnyObject { }
 
 final class RootInteractor: PresentableInteractor<RootPresentable>, RootInteractable {
 
@@ -30,5 +29,4 @@ extension RootInteractor: RootPresentableListener {
 }
 
 // MARK: - SearchListener
-extension RootInteractor: SearchListener {
-}
+extension RootInteractor: SearchListener { }

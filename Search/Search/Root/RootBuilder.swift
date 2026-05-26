@@ -1,8 +1,7 @@
 import UIKit
 import RIBs
 
-protocol RootDependency: Dependency {
-}
+protocol RootDependency: Dependency { }
 
 final class RootComponent: Component<RootDependency>, SearchDependency {
 
@@ -12,7 +11,6 @@ final class RootComponent: Component<RootDependency>, SearchDependency {
 }
 
 // MARK: - Builder
-
 protocol RootBuildable: Buildable {
     func build(withListener listener: RootListener) -> RootRouting
 }

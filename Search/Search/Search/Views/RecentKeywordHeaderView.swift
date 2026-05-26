@@ -4,7 +4,6 @@ import UIKit
 final class RecentKeywordHeaderView: UITableViewHeaderFooterView {
 
     // MARK: - UI
-
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "최근 검색"
@@ -41,6 +40,7 @@ extension RecentKeywordHeaderView {
 // MARK: - Const
 extension RecentKeywordHeaderView {
     enum Const {
+
         static let identifier = "RecentKeywordHeaderView"
     }
 }

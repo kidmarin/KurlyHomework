@@ -28,5 +28,4 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 
 // MARK: - AppRootListener
-
-private final class AppRootListener: RootListener {}
+private final class AppRootListener: RootListener { }

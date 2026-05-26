@@ -20,7 +20,7 @@ actor RecentKeywordRepository: RecentKeywordRepositoryProtocol {
 
     func save(_ keyword: String) {
         var keywords = fetch()
-        keywords.removeAll { $0.keyword == keyword }
+        keywords.removeAll { $0.keyword.caseInsensitiveCompare(keyword) == .orderedSame }
         keywords.insert(RecentKeyword(keyword: keyword, date: Date()), at: 0)
         encode(Array(keywords.prefix(Const.limit)))
     }

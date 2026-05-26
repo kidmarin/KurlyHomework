@@ -15,6 +15,7 @@ protocol SearchResultPresentableListener: AnyObject {
 
     func search(with keyword: String)
     func didSelectItem(_ item: SearchResultItem)
+    func loadNextPage()
 }
 
 final class SearchViewController: UIViewController, SearchPresentable, SearchResultPresentable, SearchViewControllable, SearchResultViewControllable {
@@ -102,6 +103,19 @@ extension SearchViewController {
         activityIndicator.stopAnimating()
     }
 
+    func showPagingIndicator() {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: resultTableView.bounds.width, height: 50))
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.center = container.center
+        indicator.startAnimating()
+        container.addSubview(indicator)
+        resultTableView.tableFooterView = container
+    }
+
+    func hidePagingIndicator() {
+        resultTableView.tableFooterView = nil
+    }
+
     func presentWebView(url: URL) {
         let webViewController = WebViewController(url: url)
         let navigationController = UINavigationController(rootViewController: webViewController)
@@ -179,6 +193,13 @@ extension SearchViewController: UITableViewDelegate {
         default:
             break
         }
+    }
+
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard dataSource.sectionIdentifier(for: indexPath.section) == .searchResult else { return }
+        let itemCount = dataSource.snapshot().numberOfItems(inSection: .searchResult)
+        guard indexPath.row == itemCount - 5 else { return }
+        searchResultListener?.loadNextPage()
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

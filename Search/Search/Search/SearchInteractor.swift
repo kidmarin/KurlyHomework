@@ -3,11 +3,13 @@ import RxSwift
 import UIKit
 
 protocol SearchRouting: ViewableRouting {
+    func attachSearchResult()
+    func detachSearchResult()
 }
 
 protocol SearchPresentable: Presentable {
-    var listener: SearchPresentableListener? { get set }
-    func apply(_ snapshot: NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>)
+    var searchListener: SearchPresentableListener? { get set }
+    func applySnapshot(_ snapshot: NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>)
 }
 
 protocol SearchListener: AnyObject {
@@ -37,7 +39,7 @@ extension SearchInteractor {
     nonisolated enum SearchItem: Hashable {
         case recentKeyword(RecentKeyword)
         case filteredRecentKeyword(String)
-        case searchResult(String)
+        case searchResult(SearchResultItem)
     }
 }
 
@@ -51,8 +53,15 @@ extension SearchInteractor {
                 snapshot.appendSections([.recentKeyword])
                 snapshot.appendItems(keywords.map { .recentKeyword($0) }, toSection: .recentKeyword)
             }
-            presenter.apply(snapshot)
+            presenter.applySnapshot(snapshot)
         }
+    }
+}
+
+// MARK: - SearchResultListener
+extension SearchInteractor: SearchResultListener {
+    func didSearch() {
+        fetchRecentKeywords()
     }
 }
 
@@ -60,13 +69,6 @@ extension SearchInteractor {
 extension SearchInteractor: SearchPresentableListener {
     func viewDidLoad() {
         fetchRecentKeywords()
-    }
-
-    func search(with keyword: String) {
-        Task {
-            await repository.save(keyword)
-            fetchRecentKeywords()
-        }
     }
 
     func deleteRecentKeyword(_ keyword: String) {

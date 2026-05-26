@@ -1,0 +1,53 @@
+import RIBs
+import RxSwift
+import UIKit
+
+protocol SearchResultRouting: ViewableRouting {
+}
+
+protocol SearchResultPresentable: Presentable {
+    var searchResultListener: SearchResultPresentableListener? { get set }
+    func applySnapshot(_ snapshot: NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>)
+}
+
+protocol SearchResultListener: AnyObject {
+    func didSearch()
+}
+
+final nonisolated class SearchResultInteractor: PresentableInteractor<SearchResultPresentable>, SearchResultInteractable {
+
+    weak var router: SearchResultRouting?
+    weak var listener: SearchResultListener?
+
+    private let searchResultRepository: SearchResultRepositoryProtocol
+    private let recentKeywordRepository: RecentKeywordRepositoryProtocol
+
+    nonisolated init(
+        presenter: SearchResultPresentable,
+        searchResultRepository: SearchResultRepositoryProtocol,
+        recentKeywordRepository: RecentKeywordRepositoryProtocol
+    ) {
+        self.searchResultRepository = searchResultRepository
+        self.recentKeywordRepository = recentKeywordRepository
+        super.init(presenter: presenter)
+    }
+}
+
+// MARK: - SearchResultPresentableListener
+extension SearchResultInteractor: SearchResultPresentableListener {
+    func search(with keyword: String) {
+        Task {
+            await recentKeywordRepository.save(keyword)
+            listener?.didSearch()
+            do {
+                let response = try await searchResultRepository.search(keyword: keyword)
+                var snapshot = NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>()
+                snapshot.appendSections([.searchResult])
+                snapshot.appendItems(response.items.map { .searchResult($0) }, toSection: .searchResult)
+                presenter.applySnapshot(snapshot)
+            } catch {
+                // TODO: 에러 처리
+            }
+        }
+    }
+}

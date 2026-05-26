@@ -4,13 +4,24 @@ import RIBs
 protocol SearchDependency: Dependency {
 }
 
-final class SearchComponent: Component<SearchDependency> {
+final nonisolated class SearchComponent: Component<SearchDependency>, SearchResultDependency {
 
-    nonisolated override init(dependency: any SearchDependency) {
+    private let viewController: SearchViewController
+
+    init(dependency: SearchDependency, viewController: SearchViewController) {
+        self.viewController = viewController
         super.init(dependency: dependency)
     }
 
-    fileprivate var recentKeywordRepository: RecentKeywordRepositoryProtocol {
+    var searchViewController: SearchViewController {
+        viewController
+    }
+
+    var searchResultRepository: SearchResultRepositoryProtocol {
+        shared { SearchResultRepository() }
+    }
+
+    var recentKeywordRepository: RecentKeywordRepositoryProtocol {
         shared { RecentKeywordRepository() }
     }
 }
@@ -28,15 +39,20 @@ final class SearchBuilder: Builder<SearchDependency>, SearchBuildable {
     }
 
     func build(withListener listener: SearchListener) -> SearchRouting {
-        let component = SearchComponent(dependency: dependency)
         let viewController = SearchViewController()
+        let component = SearchComponent(dependency: dependency, viewController: viewController)
         let interactor = SearchInteractor(
             presenter: viewController,
             repository: component.recentKeywordRepository
         )
         interactor.listener = listener
-        viewController.listener = interactor
-        let router = SearchRouter(interactor: interactor, viewController: viewController)
+        viewController.searchListener = interactor
+        let searchResultBuilder = SearchResultBuilder(dependency: component)
+        let router = SearchRouter(
+            interactor: interactor,
+            viewController: viewController,
+            searchResultBuilder: searchResultBuilder
+        )
         interactor.router = router
 
         return router

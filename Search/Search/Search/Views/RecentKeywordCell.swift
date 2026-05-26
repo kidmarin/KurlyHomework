@@ -2,7 +2,7 @@ import SnapKit
 import UIKit
 
 protocol RecentKeywordCellDelegate: AnyObject {
-    func recentKeywordCellDidTapDelete(_ cell: RecentKeywordCell)
+    func deleteKeywordTapped(on cell: RecentKeywordCell)
 }
 
 final class RecentKeywordCell: UITableViewCell {
@@ -49,7 +49,11 @@ extension RecentKeywordCell {
         selectionStyle = .none
         contentView.addSubview(keywordLabel)
         contentView.addSubview(deleteButton)
-        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        let action = UIAction(handler: { [weak self] _ in 
+            guard let self else { return }
+            self.delegate?.deleteKeywordTapped(on: self)
+        })
+        deleteButton.addAction(action, for: .touchUpInside)
     }
 
     private func setupLayout() {
@@ -64,10 +68,6 @@ extension RecentKeywordCell {
             $0.trailing.equalTo(deleteButton.snp.leading).offset(-8)
             $0.centerY.equalToSuperview()
         }
-    }
-
-    @objc private func deleteButtonTapped() {
-        delegate?.recentKeywordCellDidTapDelete(self)
     }
 }
 

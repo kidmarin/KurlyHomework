@@ -1,10 +1,13 @@
 import SnapKit
 import UIKit
 
-final class RecentKeywordFooterView: UITableViewHeaderFooterView {
-    static let identifier = "RecentKeywordFooterView"
+protocol RecentKeywordFooterViewDelegate: AnyObject {
+    func deleteAllKeywordTapped(on footer: RecentKeywordFooterView)
+}
 
-    var onDeleteAll: (() -> Void)?
+final class RecentKeywordFooterView: UITableViewHeaderFooterView {
+
+    weak var delegate: RecentKeywordFooterViewDelegate?
 
     // MARK: - UI
 
@@ -31,7 +34,11 @@ final class RecentKeywordFooterView: UITableViewHeaderFooterView {
 extension RecentKeywordFooterView {
     private func setupUI() {
         contentView.addSubview(deleteAllButton)
-        deleteAllButton.addTarget(self, action: #selector(deleteAllButtonTapped), for: .touchUpInside)
+        let action = UIAction(handler: { [weak self] _ in
+            guard let self else { return }
+            self.delegate?.deleteAllKeywordTapped(on: self)
+        })
+        deleteAllButton.addAction(action, for: .touchUpInside)
     }
 
     private func setupLayout() {
@@ -40,8 +47,11 @@ extension RecentKeywordFooterView {
             $0.centerY.equalToSuperview()
         }
     }
+}
 
-    @objc private func deleteAllButtonTapped() {
-        onDeleteAll?()
+// MARK: - Const
+extension RecentKeywordFooterView {
+    enum Const {
+        static let identifier = "RecentKeywordFooterView"
     }
 }

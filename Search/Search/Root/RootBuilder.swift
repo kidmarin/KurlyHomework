@@ -6,7 +6,7 @@ protocol RootDependency: Dependency {
 
 final class RootComponent: Component<RootDependency>, SearchDependency {
 
-    override nonisolated init(dependency: any RootDependency) {
+    override nonisolated init(dependency: RootDependency) {
         super.init(dependency: dependency)
     }
 }

@@ -9,11 +9,8 @@ protocol RecentKeywordRepositoryProtocol {
 
 actor RecentKeywordRepository: RecentKeywordRepositoryProtocol {
 
-    private let key = "recent_keywords"
-    private let limit = 10
-
     func fetch() -> [RecentKeyword] {
-        guard let data = UserDefaults.standard.data(forKey: key),
+        guard let data = UserDefaults.standard.data(forKey: Const.key),
               let keywords = try? JSONDecoder().decode([RecentKeyword].self, from: data) else {
             return []
         }
@@ -24,7 +21,7 @@ actor RecentKeywordRepository: RecentKeywordRepositoryProtocol {
         var keywords = fetch()
         keywords.removeAll { $0.keyword == keyword }
         keywords.insert(RecentKeyword(keyword: keyword, date: Date()), at: 0)
-        encode(Array(keywords.prefix(limit)))
+        encode(Array(keywords.prefix(Const.limit)))
     }
 
     func delete(_ keyword: String) {
@@ -42,6 +39,14 @@ actor RecentKeywordRepository: RecentKeywordRepositoryProtocol {
 extension RecentKeywordRepository {
     private func encode(_ keywords: [RecentKeyword]) {
         guard let data = try? JSONEncoder().encode(keywords) else { return }
-        UserDefaults.standard.set(data, forKey: key)
+        UserDefaults.standard.set(data, forKey: Const.key)
+    }
+}
+
+// MARK: - Const
+extension RecentKeywordRepository {
+    enum Const {
+        static let key = "recent_keywords"
+        static let limit = 10
     }
 }

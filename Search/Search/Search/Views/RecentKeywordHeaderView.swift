@@ -2,7 +2,6 @@ import SnapKit
 import UIKit
 
 final class RecentKeywordHeaderView: UITableViewHeaderFooterView {
-    static let identifier = "RecentKeywordHeaderView"
 
     // MARK: - UI
 
@@ -36,5 +35,12 @@ extension RecentKeywordHeaderView {
             $0.leading.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }
+    }
+}
+
+// MARK: - Const
+extension RecentKeywordHeaderView {
+    enum Const {
+        static let identifier = "RecentKeywordHeaderView"
     }
 }

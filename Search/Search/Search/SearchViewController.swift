@@ -11,6 +11,7 @@ protocol SearchPresentableListener: AnyObject {
 
 protocol SearchResultPresentableListener: AnyObject {
     func search(with keyword: String)
+    func didSelectItem(_ item: SearchResultItem)
 }
 
 final class SearchViewController: UIViewController, SearchPresentable, SearchResultPresentable, SearchViewControllable, SearchResultViewControllable {
@@ -69,6 +70,16 @@ extension SearchViewController {
     }
 }
 
+// MARK: - SearchResultPresentable
+extension SearchViewController {
+    func presentWebView(url: URL) {
+        let webViewController = WebViewController(url: url)
+        let navigationController = UINavigationController(rootViewController: webViewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        present(navigationController, animated: true)
+    }
+}
+
 // MARK: - RecentKeywordCellDelegate
 extension SearchViewController: RecentKeywordCellDelegate {
     func deleteKeywordTapped(on cell: RecentKeywordCell) {
@@ -110,8 +121,14 @@ extension SearchViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard case .recentKeyword(let keyword) = dataSource.itemIdentifier(for: indexPath) else { return }
-        searchResultListener?.search(with: keyword.keyword)
+        switch dataSource.itemIdentifier(for: indexPath) {
+        case .recentKeyword(let keyword):
+            searchResultListener?.search(with: keyword.keyword)
+        case .searchResult(let item):
+            searchResultListener?.didSelectItem(item)
+        default:
+            break
+        }
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

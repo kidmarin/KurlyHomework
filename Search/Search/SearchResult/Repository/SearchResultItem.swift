@@ -15,11 +15,13 @@ nonisolated struct SearchResultItem: Decodable, Hashable, Sendable {
     let id: Int
     let name: String
     let owner: Owner
+    let htmlURL: String
 
     enum CodingKeys: String, CodingKey {
         case id
         case name
         case owner
+        case htmlURL = "html_url"
     }
 }
 

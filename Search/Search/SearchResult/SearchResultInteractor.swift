@@ -3,6 +3,7 @@ import RxSwift
 import UIKit
 
 protocol SearchResultRouting: ViewableRouting {
+    func routeToWeb(url: URL)
 }
 
 protocol SearchResultPresentable: Presentable {
@@ -35,6 +36,11 @@ final nonisolated class SearchResultInteractor: PresentableInteractor<SearchResu
 
 // MARK: - SearchResultPresentableListener
 extension SearchResultInteractor: SearchResultPresentableListener {
+    func didSelectItem(_ item: SearchResultItem) {
+        guard let url = URL(string: item.htmlURL) else { return }
+        router?.routeToWeb(url: url)
+    }
+
     func search(with keyword: String) {
         Task {
             await recentKeywordRepository.save(keyword)

@@ -131,6 +131,16 @@ extension SearchViewController: RecentKeywordFooterViewDelegate {
 // MARK: - UITextFieldDelegate
 extension SearchViewController: UITextFieldDelegate {
 
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if resultTableView.contentOffset.y <= 0 {
+            navigationController?.setNavigationBarHidden(false, animated: true)
+        }
+    }
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let keyword = textField.text, !keyword.isEmpty else { return false }
         searchResultListener?.search(with: keyword)
@@ -158,14 +168,23 @@ extension SearchViewController: UITableViewDelegate {
         switch dataSource.itemIdentifier(for: indexPath) {
         case .recentKeyword(let keyword):
             searchTextField.text = keyword.keyword
+            searchTextField.resignFirstResponder()
             searchResultListener?.search(with: keyword.keyword)
         case .filteredRecentKeyword(let keyword):
             searchTextField.text = keyword.keyword
+            searchTextField.resignFirstResponder()
             searchResultListener?.search(with: keyword.keyword)
         case .searchResult(let item):
             searchResultListener?.didSelectItem(item)
         default:
             break
+        }
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let shouldHide = scrollView.contentOffset.y > 0
+        if navigationController?.navigationBar.isHidden != shouldHide {
+            navigationController?.setNavigationBarHidden(shouldHide, animated: true)
         }
     }
 

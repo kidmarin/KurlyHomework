@@ -4,6 +4,10 @@ import SnapKit
 import UIKit
 
 protocol SearchPresentableListener: AnyObject {
+    func viewDidLoad()
+    func search(with keyword: String)
+    func deleteRecentKeyword(_ keyword: String)
+    func deleteAllRecentKeywords()
 }
 
 final class SearchViewController: UIViewController, SearchPresentable, SearchViewControllable {
@@ -34,11 +38,14 @@ final class SearchViewController: UIViewController, SearchPresentable, SearchVie
         tableView.rowHeight = UITableView.automaticDimension
         tableView.separatorInset = .zero
         tableView.keyboardDismissMode = .onDrag
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.sectionHeaderTopPadding = 0
+        tableView.register(RecentKeywordCell.self, forCellReuseIdentifier: RecentKeywordCell.Const.identifier)
+        tableView.register(RecentKeywordHeaderView.self, forHeaderFooterViewReuseIdentifier: RecentKeywordHeaderView.identifier)
+        tableView.register(RecentKeywordFooterView.self, forHeaderFooterViewReuseIdentifier: RecentKeywordFooterView.identifier)
         return tableView
     }()
 
-    private lazy var dataSource: UITableViewDiffableDataSource<Section, Item> = makeDataSource()
+    private lazy var dataSource: UITableViewDiffableDataSource<SearchInteractor.SearchSection, SearchInteractor.SearchItem> = makeDataSource()
 
     // MARK: - Lifecycle
 
@@ -46,21 +53,58 @@ final class SearchViewController: UIViewController, SearchPresentable, SearchVie
         super.viewDidLoad()
         setupUI()
         setupLayout()
+        listener?.viewDidLoad()
     }
 }
 
-// MARK: - DataSource
+// MARK: - SearchPresentable
 extension SearchViewController {
-    private nonisolated enum Section: Hashable, Sendable {
-        case recentKeyword
-        case filteredRecentKeyword
-        case searchResult
+    func apply(_ snapshot: NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>) {
+        dataSource.apply(snapshot, animatingDifferences: false)
+    }
+}
+
+// MARK: - RecentKeywordCellDelegate
+extension SearchViewController: RecentKeywordCellDelegate {
+    func recentKeywordCellDidTapDelete(_ cell: RecentKeywordCell) {
+        guard let indexPath = resultTableView.indexPath(for: cell),
+              case .recentKeyword(let keyword) = dataSource.itemIdentifier(for: indexPath) else { return }
+        listener?.deleteRecentKeyword(keyword.keyword)
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension SearchViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        guard let keyword = textField.text, !keyword.isEmpty else { return false }
+        listener?.search(with: keyword)
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+// MARK: - UITableViewDelegate
+extension SearchViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard dataSource.sectionIdentifier(for: section) == .recentKeyword else { return nil }
+        return tableView.dequeueReusableHeaderFooterView(withIdentifier: RecentKeywordHeaderView.identifier)
     }
 
-    private nonisolated enum Item: Hashable {
-        case recentKeyword(String)
-        case filteredRecentKeyword(String)
-        case searchResult(String)
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard dataSource.sectionIdentifier(for: section) == .recentKeyword else { return nil }
+        let footer = tableView.dequeueReusableHeaderFooterView(withIdentifier: RecentKeywordFooterView.identifier) as? RecentKeywordFooterView
+        footer?.onDeleteAll = { [weak self] in
+            self?.listener?.deleteAllRecentKeywords()
+        }
+        return footer
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        dataSource.sectionIdentifier(for: section) == .recentKeyword ? 44 : 0
+    }
+
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        dataSource.sectionIdentifier(for: section) == .recentKeyword ? 44 : 0
     }
 }
 
@@ -70,6 +114,9 @@ extension SearchViewController {
         view.backgroundColor = .systemBackground
         navigationItem.title = "Search"
         navigationItem.largeTitleDisplayMode = .always
+        searchTextField.delegate = self
+        searchTextField.returnKeyType = .search
+        resultTableView.delegate = self
         view.addSubview(searchTextField)
         view.addSubview(resultTableView)
     }
@@ -87,19 +134,17 @@ extension SearchViewController {
         }
     }
 
-    private func makeDataSource() -> UITableViewDiffableDataSource<Section, Item> {
+    private func makeDataSource() -> UITableViewDiffableDataSource<SearchInteractor.SearchSection, SearchInteractor.SearchItem> {
         UITableViewDiffableDataSource(tableView: resultTableView) { tableView, indexPath, item in
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            var config = cell.defaultContentConfiguration()
             switch item {
-            case .recentKeyword(let keyword),
-                 .filteredRecentKeyword(let keyword):
-                config.text = keyword
-            case .searchResult(let result):
-                config.text = result
+            case .recentKeyword(let keyword):
+                let cell = tableView.dequeueReusableCell(withIdentifier: RecentKeywordCell.Const.identifier, for: indexPath) as? RecentKeywordCell
+                cell?.configure(with: keyword)
+                cell?.delegate = self
+                return cell ?? UITableViewCell()
+            case .filteredRecentKeyword, .searchResult:
+                return UITableViewCell()
             }
-            cell.contentConfiguration = config
-            return cell
         }
     }
 }

@@ -9,6 +9,10 @@ final class SearchComponent: Component<SearchDependency> {
     nonisolated override init(dependency: any SearchDependency) {
         super.init(dependency: dependency)
     }
+
+    fileprivate var recentKeywordRepository: RecentKeywordRepositoryProtocol {
+        shared { RecentKeywordRepository() }
+    }
 }
 
 // MARK: - Builder
@@ -26,7 +30,10 @@ final class SearchBuilder: Builder<SearchDependency>, SearchBuildable {
     func build(withListener listener: SearchListener) -> SearchRouting {
         let component = SearchComponent(dependency: dependency)
         let viewController = SearchViewController()
-        let interactor = SearchInteractor(presenter: viewController)
+        let interactor = SearchInteractor(
+            presenter: viewController,
+            repository: component.recentKeywordRepository
+        )
         interactor.listener = listener
         viewController.listener = interactor
         let router = SearchRouter(interactor: interactor, viewController: viewController)

@@ -12,6 +12,7 @@ final class RootViewController: UINavigationController, RootPresentable, RootVie
 
 // MARK: - Lifecycle
 extension RootViewController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationBar.prefersLargeTitles = true
@@ -21,6 +22,7 @@ extension RootViewController {
 
 // MARK: - RootViewControllable
 extension RootViewController {
+
     func setRootViewController(_ viewControllable: ViewControllable) {
         setViewControllers([viewControllable.uiviewController], animated: false)
     }

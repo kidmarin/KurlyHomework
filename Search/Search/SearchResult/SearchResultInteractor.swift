@@ -3,17 +3,21 @@ import RxSwift
 import UIKit
 
 protocol SearchResultRouting: ViewableRouting {
+
     func routeToWeb(url: URL)
 }
 
 protocol SearchResultPresentable: Presentable {
+
     var searchResultListener: SearchResultPresentableListener? { get set }
     func applySnapshot(_ snapshot: NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>)
+    func showLoading()
+    func hideLoading()
+    func showPagingIndicator()
+    func hidePagingIndicator()
 }
 
-protocol SearchResultListener: AnyObject {
-    func didSearch()
-}
+protocol SearchResultListener: AnyObject { }
 
 final nonisolated class SearchResultInteractor: PresentableInteractor<SearchResultPresentable>, SearchResultInteractable {
 
@@ -36,6 +40,7 @@ final nonisolated class SearchResultInteractor: PresentableInteractor<SearchResu
 
 // MARK: - SearchResultPresentableListener
 extension SearchResultInteractor: SearchResultPresentableListener {
+
     func didSelectItem(_ item: SearchResultItem) {
         guard let url = URL(string: item.htmlURL) else { return }
         router?.routeToWeb(url: url)
@@ -43,17 +48,43 @@ extension SearchResultInteractor: SearchResultPresentableListener {
 
     func search(with keyword: String) {
         Task {
+            guard await keyword != searchResultRepository.keyword else { return }
             await recentKeywordRepository.save(keyword)
-            listener?.didSearch()
+            presenter.showLoading()
             do {
                 let response = try await searchResultRepository.search(keyword: keyword)
-                var snapshot = NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>()
-                snapshot.appendSections([.searchResult])
-                snapshot.appendItems(response.items.map { .searchResult($0) }, toSection: .searchResult)
-                presenter.applySnapshot(snapshot)
+                presenter.applySnapshot(makeSnapshot(items: response.items))
             } catch {
                 // TODO: 에러 처리
             }
+            presenter.hideLoading()
         }
+    }
+
+    func loadNextPage() {
+        Task {
+            presenter.showPagingIndicator()
+            do {
+                guard let response = try await searchResultRepository.loadNextPage() else {
+                    presenter.hidePagingIndicator()
+                    return
+                }
+                presenter.applySnapshot(makeSnapshot(items: response.items))
+            } catch {
+                // TODO: 에러 처리
+            }
+            presenter.hidePagingIndicator()
+        }
+    }
+}
+
+// MARK: - Private
+extension SearchResultInteractor {
+
+    private func makeSnapshot(items: [SearchResultItem]) -> NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem> {
+        var snapshot = NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>()
+        snapshot.appendSections([.searchResult])
+        snapshot.appendItems(items.map { .searchResult($0) }, toSection: .searchResult)
+        return snapshot
     }
 }

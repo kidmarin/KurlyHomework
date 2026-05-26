@@ -2,6 +2,7 @@ import SnapKit
 import UIKit
 
 protocol RecentKeywordCellDelegate: AnyObject {
+
     func deleteKeywordTapped(on cell: RecentKeywordCell)
 }
 
@@ -44,6 +45,7 @@ final class RecentKeywordCell: UITableViewCell {
 
 // MARK: - Private
 extension RecentKeywordCell {
+
     private func setupUI() {
         selectionStyle = .none
         contentView.addSubview(keywordLabel)
@@ -72,6 +74,7 @@ extension RecentKeywordCell {
 
 // MARK: - Const
 extension RecentKeywordCell {
+
     enum Const {
 
         static let identifier = "RecentKeywordCell"

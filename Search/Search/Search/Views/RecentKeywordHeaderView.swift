@@ -25,6 +25,7 @@ final class RecentKeywordHeaderView: UITableViewHeaderFooterView {
 
 // MARK: - Private
 extension RecentKeywordHeaderView {
+
     private func setupUI() {
         contentView.addSubview(titleLabel)
     }
@@ -39,6 +40,7 @@ extension RecentKeywordHeaderView {
 
 // MARK: - Const
 extension RecentKeywordHeaderView {
+
     enum Const {
 
         static let identifier = "RecentKeywordHeaderView"

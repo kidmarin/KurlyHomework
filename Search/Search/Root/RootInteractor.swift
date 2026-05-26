@@ -2,10 +2,12 @@ import RIBs
 import RxSwift
 
 protocol RootRouting: ViewableRouting {
+
     func routeToSearch()
 }
 
 protocol RootPresentable: Presentable {
+
     var listener: RootPresentableListener? { get set }
 }
 
@@ -23,6 +25,7 @@ final class RootInteractor: PresentableInteractor<RootPresentable>, RootInteract
 
 // MARK: - RootPresentableListener
 extension RootInteractor: RootPresentableListener {
+
     func viewDidLoad() {
         router?.routeToSearch()
     }

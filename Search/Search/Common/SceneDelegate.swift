@@ -16,7 +16,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
 
-        let router = SearchBuilder(dependency: AppComponent()).build(withListener: RootListener())
+        let router = RootBuilder(dependency: AppComponent()).build(withListener: AppRootListener())
         self.router = router
 
         window.rootViewController = router.viewControllable.uiviewController
@@ -27,6 +27,5 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 }
 
-// MARK: - RootListener
-
-private final class RootListener: SearchListener {}
+// MARK: - AppRootListener
+private final class AppRootListener: RootListener { }

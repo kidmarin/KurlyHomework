@@ -1,18 +1,31 @@
 import UIKit
 import RIBs
 
-protocol SearchDependency: Dependency {
-}
+protocol SearchDependency: Dependency { }
 
-final class SearchComponent: Component<SearchDependency> {
+final nonisolated class SearchComponent: Component<SearchDependency>, SearchResultDependency {
 
-    nonisolated override init(dependency: any SearchDependency) {
+    private let viewController: SearchViewController
+
+    init(dependency: SearchDependency, viewController: SearchViewController) {
+        self.viewController = viewController
         super.init(dependency: dependency)
+    }
+
+    var searchViewController: SearchViewController {
+        viewController
+    }
+
+    var searchResultRepository: SearchResultRepositoryProtocol {
+        shared { SearchResultRepository() }
+    }
+
+    var recentKeywordRepository: RecentKeywordRepositoryProtocol {
+        shared { RecentKeywordRepository() }
     }
 }
 
 // MARK: - Builder
-
 protocol SearchBuildable: Buildable {
     func build(withListener listener: SearchListener) -> SearchRouting
 }
@@ -24,12 +37,20 @@ final class SearchBuilder: Builder<SearchDependency>, SearchBuildable {
     }
 
     func build(withListener listener: SearchListener) -> SearchRouting {
-        let component = SearchComponent(dependency: dependency)
         let viewController = SearchViewController()
-        let interactor = SearchInteractor(presenter: viewController)
+        let component = SearchComponent(dependency: dependency, viewController: viewController)
+        let interactor = SearchInteractor(
+            presenter: viewController,
+            repository: component.recentKeywordRepository
+        )
         interactor.listener = listener
-        viewController.listener = interactor
-        let router = SearchRouter(interactor: interactor, viewController: viewController)
+        viewController.searchListener = interactor
+        let searchResultBuilder = SearchResultBuilder(dependency: component)
+        let router = SearchRouter(
+            interactor: interactor,
+            viewController: viewController,
+            searchResultBuilder: searchResultBuilder
+        )
         interactor.router = router
 
         return router

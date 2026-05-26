@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "The following file was just written or edited: $ARGUMENTS\n\nReview the change and determine if it establishes, modifies, or removes a project rule or convention (e.g. code style, architecture pattern, naming convention, folder structure, RIBs usage, etc.).\n\nIf a rule changed, update /Users/ssun/Desktop/Git/KurlyHomework/CLAUDE.md to reflect it — add new rules, update changed ones, or remove obsolete ones. Keep the existing structure and writing style of CLAUDE.md.\n\nIf no rule changed, do nothing.",
+            "statusMessage": "규칙 변경 감지 중..."
+          }
+        ]
+      }
+    ]
+  }
+}

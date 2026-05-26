@@ -2,6 +2,7 @@ import Alamofire
 import Foundation
 
 protocol SearchResultRepositoryProtocol {
+
     func search(keyword: String) async throws -> SearchResultResponse
 }
 
@@ -25,6 +26,7 @@ actor SearchResultRepository: SearchResultRepositoryProtocol {
 
 // MARK: - Const
 extension SearchResultRepository {
+
     enum Const {
 
         static let searchURL = "https://api.github.com/search/repositories"

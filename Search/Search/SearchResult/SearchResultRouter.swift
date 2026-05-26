@@ -2,11 +2,13 @@ import Foundation
 import RIBs
 
 protocol SearchResultInteractable: Interactable, SearchResultPresentableListener {
+
     var router: SearchResultRouting? { get set }
     var listener: SearchResultListener? { get set }
 }
 
 protocol SearchResultViewControllable: ViewControllable {
+
     func presentWebView(url: URL)
 }
 
@@ -19,6 +21,7 @@ final nonisolated class SearchResultRouter: ViewableRouter<SearchResultInteracta
 
 // MARK: - SearchResultRouting
 extension SearchResultRouter {
+
     func routeToWeb(url: URL) {
         viewController.presentWebView(url: url)
     }

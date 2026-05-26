@@ -1,11 +1,13 @@
 import RIBs
 
 protocol RootInteractable: Interactable, SearchListener {
+
     var router: RootRouting? { get set }
     var listener: RootListener? { get set }
 }
 
 protocol RootViewControllable: ViewControllable {
+
     func setRootViewController(_ viewControllable: ViewControllable)
 }
 
@@ -26,6 +28,7 @@ final nonisolated class RootRouter: ViewableRouter<RootInteractable, RootViewCon
 
 // MARK: - RootRouting
 extension RootRouter {
+
     func routeToSearch() {
         let router = searchBuilder.build(withListener: interactor)
         searchRouter = router

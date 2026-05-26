@@ -27,6 +27,7 @@ final nonisolated class SearchComponent: Component<SearchDependency>, SearchResu
 
 // MARK: - Builder
 protocol SearchBuildable: Buildable {
+
     func build(withListener listener: SearchListener) -> SearchRouting
 }
 

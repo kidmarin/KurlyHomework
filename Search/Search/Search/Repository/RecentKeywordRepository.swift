@@ -38,6 +38,7 @@ actor RecentKeywordRepository: RecentKeywordRepositoryProtocol {
 
 // MARK: - Private
 extension RecentKeywordRepository {
+
     private func encode(_ keywords: [RecentKeyword]) {
         guard let data = try? JSONEncoder().encode(keywords) else { return }
         UserDefaults.standard.set(data, forKey: Const.key)
@@ -46,6 +47,7 @@ extension RecentKeywordRepository {
 
 // MARK: - Const
 extension RecentKeywordRepository {
+
     enum Const {
 
         static let key = "recent_keywords"

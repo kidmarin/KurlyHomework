@@ -1,6 +1,7 @@
 import RIBs
 
 protocol SearchResultDependency: Dependency {
+
     var searchViewController: SearchViewController { get }
     var searchResultRepository: SearchResultRepositoryProtocol { get }
     var recentKeywordRepository: RecentKeywordRepositoryProtocol { get }
@@ -27,6 +28,7 @@ final class SearchResultComponent: Component<SearchResultDependency> {
 
 // MARK: - Builder
 protocol SearchResultBuildable: Buildable {
+
     func build(withListener listener: SearchResultListener) -> SearchResultRouting
 }
 

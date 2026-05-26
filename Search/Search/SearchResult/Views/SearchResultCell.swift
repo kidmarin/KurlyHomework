@@ -61,6 +61,7 @@ final class SearchResultCell: UITableViewCell {
 
 // MARK: - Private
 extension SearchResultCell {
+
     private func setupUI() {
         selectionStyle = .none
         contentView.addSubview(avatarImageView)
@@ -95,6 +96,7 @@ extension SearchResultCell {
 
 // MARK: - Const
 extension SearchResultCell {
+
     enum Const {
 
         static let identifier = "SearchResultCell"

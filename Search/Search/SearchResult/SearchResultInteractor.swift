@@ -3,15 +3,20 @@ import RxSwift
 import UIKit
 
 protocol SearchResultRouting: ViewableRouting {
+
     func routeToWeb(url: URL)
 }
 
 protocol SearchResultPresentable: Presentable {
+
     var searchResultListener: SearchResultPresentableListener? { get set }
     func applySnapshot(_ snapshot: NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>)
+    func showLoading()
+    func hideLoading()
 }
 
 protocol SearchResultListener: AnyObject {
+
     func didSearch()
 }
 
@@ -36,6 +41,7 @@ final nonisolated class SearchResultInteractor: PresentableInteractor<SearchResu
 
 // MARK: - SearchResultPresentableListener
 extension SearchResultInteractor: SearchResultPresentableListener {
+
     func didSelectItem(_ item: SearchResultItem) {
         guard let url = URL(string: item.htmlURL) else { return }
         router?.routeToWeb(url: url)
@@ -45,6 +51,7 @@ extension SearchResultInteractor: SearchResultPresentableListener {
         Task {
             await recentKeywordRepository.save(keyword)
             listener?.didSearch()
+            presenter.showLoading()
             do {
                 let response = try await searchResultRepository.search(keyword: keyword)
                 var snapshot = NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>()
@@ -54,6 +61,7 @@ extension SearchResultInteractor: SearchResultPresentableListener {
             } catch {
                 // TODO: 에러 처리
             }
+            presenter.hideLoading()
         }
     }
 }

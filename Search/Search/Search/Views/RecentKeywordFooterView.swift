@@ -2,6 +2,7 @@ import SnapKit
 import UIKit
 
 protocol RecentKeywordFooterViewDelegate: AnyObject {
+
     func deleteAllKeywordTapped(on footer: RecentKeywordFooterView)
 }
 
@@ -31,6 +32,7 @@ final class RecentKeywordFooterView: UITableViewHeaderFooterView {
 
 // MARK: - Private
 extension RecentKeywordFooterView {
+
     private func setupUI() {
         contentView.addSubview(deleteAllButton)
         let action = UIAction(handler: { [weak self] _ in
@@ -50,6 +52,7 @@ extension RecentKeywordFooterView {
 
 // MARK: - Const
 extension RecentKeywordFooterView {
+
     enum Const {
 
         static let identifier = "RecentKeywordFooterView"

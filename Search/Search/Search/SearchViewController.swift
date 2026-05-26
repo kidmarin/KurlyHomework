@@ -4,12 +4,14 @@ import SnapKit
 import UIKit
 
 protocol SearchPresentableListener: AnyObject {
+
     func viewDidLoad()
     func deleteRecentKeyword(_ keyword: String)
     func deleteAllRecentKeywords()
 }
 
 protocol SearchResultPresentableListener: AnyObject {
+
     func search(with keyword: String)
     func didSelectItem(_ item: SearchResultItem)
 }
@@ -50,11 +52,25 @@ final class SearchViewController: UIViewController, SearchPresentable, SearchRes
         return tableView
     }()
 
+    private let loadingContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground.withAlphaComponent(0.6)
+        view.isHidden = true
+        return view
+    }()
+
+    private let activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+
     private lazy var dataSource: UITableViewDiffableDataSource<SearchInteractor.SearchSection, SearchInteractor.SearchItem> = makeDataSource()
 }
 
 // MARK: - Lifecycle
 extension SearchViewController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -65,6 +81,7 @@ extension SearchViewController {
 
 // MARK: - SearchPresentable
 extension SearchViewController {
+
     func applySnapshot(_ snapshot: NSDiffableDataSourceSnapshot<SearchInteractor.SearchSection, SearchInteractor.SearchItem>) {
         dataSource.apply(snapshot, animatingDifferences: false)
     }
@@ -72,6 +89,17 @@ extension SearchViewController {
 
 // MARK: - SearchResultPresentable
 extension SearchViewController {
+
+    func showLoading() {
+        loadingContainerView.isHidden = false
+        activityIndicator.startAnimating()
+    }
+
+    func hideLoading() {
+        loadingContainerView.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+
     func presentWebView(url: URL) {
         let webViewController = WebViewController(url: url)
         let navigationController = UINavigationController(rootViewController: webViewController)
@@ -82,6 +110,7 @@ extension SearchViewController {
 
 // MARK: - RecentKeywordCellDelegate
 extension SearchViewController: RecentKeywordCellDelegate {
+
     func deleteKeywordTapped(on cell: RecentKeywordCell) {
         guard let indexPath = resultTableView.indexPath(for: cell),
               case .recentKeyword(let keyword) = dataSource.itemIdentifier(for: indexPath) else { return }
@@ -91,6 +120,7 @@ extension SearchViewController: RecentKeywordCellDelegate {
 
 // MARK: - RecentKeywordFooterViewDelegate
 extension SearchViewController: RecentKeywordFooterViewDelegate {
+
     func deleteAllKeywordTapped(on footer: RecentKeywordFooterView) {
         searchListener?.deleteAllRecentKeywords()
     }
@@ -98,6 +128,7 @@ extension SearchViewController: RecentKeywordFooterViewDelegate {
 
 // MARK: - UITextFieldDelegate
 extension SearchViewController: UITextFieldDelegate {
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let keyword = textField.text, !keyword.isEmpty else { return false }
         searchResultListener?.search(with: keyword)
@@ -108,6 +139,7 @@ extension SearchViewController: UITextFieldDelegate {
 
 // MARK: - UITableViewDelegate
 extension SearchViewController: UITableViewDelegate {
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard dataSource.sectionIdentifier(for: section) == .recentKeyword else { return nil }
         return tableView.dequeueReusableHeaderFooterView(withIdentifier: RecentKeywordHeaderView.Const.identifier)
@@ -142,6 +174,7 @@ extension SearchViewController: UITableViewDelegate {
 
 // MARK: - Private
 extension SearchViewController {
+
     private func setupUI() {
         view.backgroundColor = .systemBackground
         navigationItem.title = "Search"
@@ -151,6 +184,8 @@ extension SearchViewController {
         resultTableView.delegate = self
         view.addSubview(searchTextField)
         view.addSubview(resultTableView)
+        view.addSubview(loadingContainerView)
+        loadingContainerView.addSubview(activityIndicator)
     }
 
     private func setupLayout() {
@@ -163,6 +198,14 @@ extension SearchViewController {
         resultTableView.snp.makeConstraints {
             $0.top.equalTo(searchTextField.snp.bottom).offset(8)
             $0.leading.trailing.bottom.equalToSuperview()
+        }
+
+        loadingContainerView.snp.makeConstraints {
+            $0.edges.equalTo(resultTableView)
+        }
+
+        activityIndicator.snp.makeConstraints {
+            $0.center.equalToSuperview()
         }
     }
 

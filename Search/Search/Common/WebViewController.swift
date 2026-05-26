@@ -21,6 +21,7 @@ final class WebViewController: UIViewController {
 
 // MARK: - Lifecycle
 extension WebViewController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -31,6 +32,7 @@ extension WebViewController {
 
 // MARK: - Private
 extension WebViewController {
+
     private func setupUI() {
         view.backgroundColor = .systemBackground
         view.addSubview(webView)
